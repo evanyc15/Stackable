@@ -1,4 +1,4 @@
-package com.zbar.integration.android;
+package ech98.echen.stackable;
 
 import android.app.Activity;
 import android.content.Intent;

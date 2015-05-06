@@ -1,4 +1,4 @@
-package com.zbar.integration.android;
+package ech98.echen.stackable;
 
 public interface ZBarConstants {
     public static final String SCAN_MODES = "SCAN_MODES";

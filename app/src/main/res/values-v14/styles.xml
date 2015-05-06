@@ -5,4 +5,8 @@
     <style name="Theme.Main.Default" parent="@style/Theme.AppCompat.Light">
         <item name="android:activatedBackgroundIndicator">@drawable/drawable_background</item>
     </style>
+    <style name="Theme.Barcode" parent="@style/Theme.AppCompat.Light">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>

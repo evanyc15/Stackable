@@ -6,9 +6,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
-
-import com.zbar.integration.android.ZBarConstants;
-import com.zbar.integration.android.ZBarScannerActivity;
+import ech98.echen.stackable.ZBarScannerActivity;
+import ech98.echen.stackable.ZBarConstants;
 import net.sourceforge.zbar.Symbol;
 
 
@@ -19,6 +18,7 @@ public class BarcodeScannerActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_barcode_scanner);
 
         launchScanner();
     }
@@ -47,6 +47,11 @@ public class BarcodeScannerActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case ZBAR_SCANNER_REQUEST:
+//                Toast.makeText(this, "Scan Result = " + data.getStringExtra(ZBarConstants.SCAN_RESULT), Toast.LENGTH_SHORT).show();
+                Intent output = new Intent();
+                output.putExtra("data", data.getStringExtra(ZBarConstants.SCAN_RESULT));
+                setResult(RESULT_OK, output);
+                finish();
             case ZBAR_QR_SCANNER_REQUEST:
                 if (resultCode == RESULT_OK) {
                     Toast.makeText(this, "Scan Result = " + data.getStringExtra(ZBarConstants.SCAN_RESULT), Toast.LENGTH_SHORT).show();

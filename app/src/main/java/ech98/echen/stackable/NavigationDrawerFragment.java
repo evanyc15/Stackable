@@ -249,13 +249,20 @@ public class NavigationDrawerFragment extends Fragment {
 
         if (item.getItemId() == R.id.action_scan) {
             Intent intent = new Intent(getActivity(), BarcodeScannerActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 0);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
+    @Override
+    // Method is called when the Barcode Intent has finished scanning a barcode and returns the data
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == 0 && resultCode == Activity.RESULT_OK){
+            String barcode = data.getStringExtra("data");
+//            Toast.makeText(getActivity(), "Scan Result = " + barcode, Toast.LENGTH_SHORT).show();
+        }
+    };
     /**
      * Per the navigation drawer design guidelines, updates the action bar to show the global app
      * 'context', rather than just what's in the current screen.

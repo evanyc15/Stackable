@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:allowBackup="true"
@@ -33,7 +34,13 @@
         <activity
             android:name=".BarcodeScannerActivity"
             android:label="@string/title_activity_barcode_scanner"
-            android:theme="@style/Theme.FullScreen">
+            android:theme="@style/Theme.Barcode">
+        </activity>
+        <activity
+            android:name=".ZBarScannerActivity"
+            android:label="@string/title_activity_zbarscanner"
+            android:theme="@style/Theme.Default"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 

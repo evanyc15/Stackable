@@ -1,4 +1,4 @@
-package com.zbar.integration.android;
+package ech98.echen.stackable;
 
 import android.content.Context;
 import android.hardware.Camera;
@@ -6,10 +6,14 @@ import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.util.Log;
+import android.view.Display;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -161,7 +165,29 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
             // Now that the size is known, set up the camera parameters and begin
             // the preview.
             Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+            if(display.getRotation() == Surface.ROTATION_0)
+            {
+                parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+                mCamera.setDisplayOrientation(90);
+            }
+
+            if(display.getRotation() == Surface.ROTATION_90)
+            {
+                parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            }
+
+            if(display.getRotation() == Surface.ROTATION_180)
+            {
+                parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            }
+
+            if(display.getRotation() == Surface.ROTATION_270)
+            {
+                parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+                mCamera.setDisplayOrientation(180);
+            }
             requestLayout();
 
             mCamera.setParameters(parameters);
