@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 public class Main_AuthedActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
-    private ListView mlistView;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -42,7 +41,6 @@ public class Main_AuthedActivity extends ActionBarActivity
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
-
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
@@ -134,7 +132,17 @@ public class Main_AuthedActivity extends ActionBarActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+            String[] data = new String[] { "Android", "iPhone", "WindowsMobile",
+                    "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
+                    "Linux", "OS/2" };
+
             View rootView = inflater.inflate(R.layout.fragment_main__authed, container, false);
+            ListView mlistView = (ListView) rootView.findViewById(R.id.listview);
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                    R.layout.my_list_row_item, R.id.itemtext, data);
+            mlistView.setAdapter(adapter);
+
             return rootView;
         }
 

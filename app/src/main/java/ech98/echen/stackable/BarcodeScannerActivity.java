@@ -48,9 +48,19 @@ public class BarcodeScannerActivity extends ActionBarActivity {
         switch (requestCode) {
             case ZBAR_SCANNER_REQUEST:
 //                Toast.makeText(this, "Scan Result = " + data.getStringExtra(ZBarConstants.SCAN_RESULT), Toast.LENGTH_SHORT).show();
-                Intent output = new Intent();
-                output.putExtra("data", data.getStringExtra(ZBarConstants.SCAN_RESULT));
-                setResult(RESULT_OK, output);
+                if(data != null){
+                    Bundle extras = data.getExtras();
+                    if (extras != null) {
+                        if (extras.containsKey("data")) {
+                            Intent output = new Intent();
+                            output.putExtra("data", data.getStringExtra(ZBarConstants.SCAN_RESULT));
+                        }
+                    } else {
+                        setResult(RESULT_CANCELED);
+                    }
+                } else {
+                    setResult(RESULT_CANCELED);
+                }
                 finish();
             case ZBAR_QR_SCANNER_REQUEST:
                 if (resultCode == RESULT_OK) {
