@@ -2,11 +2,16 @@
     <style name="Theme.Default" parent="@android:style/Theme.Holo.Light"></style>
     <style name="Theme.NoTitle" parent="@android:style/Theme.Holo.Light.NoActionBar"></style>
     <style name="Theme.FullScreen" parent="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen"></style>
-    <style name="Theme.Main.Default" parent="@style/Theme.AppCompat.Light">
+    <style name="Theme.Main.Default" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:activatedBackgroundIndicator">@drawable/drawable_background</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
     </style>
     <style name="Theme.Barcode" parent="@style/Theme.AppCompat.Light">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/black</item>
     </style>
 </resources>

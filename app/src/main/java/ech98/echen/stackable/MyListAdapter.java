@@ -9,14 +9,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 /**
- * Created by echen on 5/6/15.
+ * Created by echen on 5/6/15. This is the adapter that controls the content of the
+ * fragment_main_authed ListView
  */
 public class MyListAdapter extends ArrayAdapter<String> {
     private final Context context;
-    private final String[] data;
+    private final ArrayList<String> data;
 
-    public MyListAdapter(Context context, String[] data) {
+    public MyListAdapter(Context context, ArrayList<String> data) {
         super(context, R.layout.my_list_row_item, data);
         this.context = context;
         this.data = data;
@@ -28,7 +31,7 @@ public class MyListAdapter extends ArrayAdapter<String> {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.my_list_row_item, parent, false);
         TextView textView = (TextView) rowView.findViewById(R.id.itemtext);
-        textView.setText(data[position]);
+        textView.setText(data.get(position));
 
         return rowView;
     }

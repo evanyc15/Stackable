@@ -22,6 +22,8 @@ public class BarcodeScannerActivity extends ActionBarActivity {
 
         launchScanner();
     }
+    // This launches the barcode scanner and uses the ZBar activities to scan the barcode and
+    // obtain the data.
     public void launchScanner() {
         if (isCameraAvailable()) {
             Intent intent = new Intent(this, ZBarScannerActivity.class);
@@ -43,17 +45,20 @@ public class BarcodeScannerActivity extends ActionBarActivity {
         PackageManager pm = getPackageManager();
         return pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
+    // This method is called after the launchScanner() method above's startActivityResult for the ZBarScannerActivity
+    // has finished. The ZBarScannerActivity will return the data from the barcode scanner.
+    // This method will finish() the Activity which closes it returns back to the NavigationDrawerFragment
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case ZBAR_SCANNER_REQUEST:
-//                Toast.makeText(this, "Scan Result = " + data.getStringExtra(ZBarConstants.SCAN_RESULT), Toast.LENGTH_SHORT).show();
                 if(data != null){
                     Bundle extras = data.getExtras();
                     if (extras != null) {
-                        if (extras.containsKey("data")) {
+                        if (extras.containsKey(ZBarConstants.SCAN_RESULT)) {
                             Intent output = new Intent();
                             output.putExtra("data", data.getStringExtra(ZBarConstants.SCAN_RESULT));
+                            setResult(RESULT_OK, output);
                         }
                     } else {
                         setResult(RESULT_CANCELED);
@@ -62,16 +67,17 @@ public class BarcodeScannerActivity extends ActionBarActivity {
                     setResult(RESULT_CANCELED);
                 }
                 finish();
-            case ZBAR_QR_SCANNER_REQUEST:
-                if (resultCode == RESULT_OK) {
-                    Toast.makeText(this, "Scan Result = " + data.getStringExtra(ZBarConstants.SCAN_RESULT), Toast.LENGTH_SHORT).show();
-                } else if(resultCode == RESULT_CANCELED && data != null) {
-                    String error = data.getStringExtra(ZBarConstants.ERROR_INFO);
-                    if(!TextUtils.isEmpty(error)) {
-                        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-                    }
-                }
                 break;
+//            case ZBAR_QR_SCANNER_REQUEST:
+//                if (resultCode == RESULT_OK) {
+//                    Toast.makeText(this, "Scan Result = " + data.getStringExtra(ZBarConstants.SCAN_RESULT), Toast.LENGTH_SHORT).show();
+//                } else if(resultCode == RESULT_CANCELED && data != null) {
+//                    String error = data.getStringExtra(ZBarConstants.ERROR_INFO);
+//                    if(!TextUtils.isEmpty(error)) {
+//                        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//                break;
         }
     }
 }

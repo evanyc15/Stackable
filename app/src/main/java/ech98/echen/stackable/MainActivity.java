@@ -27,7 +27,6 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, Main_AuthedActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
     }

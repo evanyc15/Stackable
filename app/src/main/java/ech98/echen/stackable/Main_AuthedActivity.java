@@ -1,6 +1,7 @@
 package ech98.echen.stackable;
 
 import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,8 @@ import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +21,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
+
+import java.util.ArrayList;
 
 
 public class Main_AuthedActivity extends ActionBarActivity
@@ -104,10 +111,26 @@ public class Main_AuthedActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
+    // Called from the NavigationDrawerFragment's onActivityResult() method. This method will fetch
+    // the content fragment and then add and update data in the listview
+    public void updateListView(String data){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        PlaceholderFragment fragment = (PlaceholderFragment) fragmentManager.findFragmentById(R.id.container);
+
+        if(fragment != null){
+            fragment.addtoList(data);
+        } else {
+            Toast.makeText(Main_AuthedActivity.this, "Cannot load content", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
+        private ListView mlistView;
+        private ArrayAdapter<String> adapter;
+
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -132,14 +155,12 @@ public class Main_AuthedActivity extends ActionBarActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            String[] data = new String[] { "Android", "iPhone", "WindowsMobile",
-                    "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-                    "Linux", "OS/2" };
+            ArrayList<String> data = new ArrayList<String>();
 
             View rootView = inflater.inflate(R.layout.fragment_main__authed, container, false);
-            ListView mlistView = (ListView) rootView.findViewById(R.id.listview);
+            mlistView = (ListView) rootView.findViewById(R.id.listview);
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+            adapter = new ArrayAdapter<String>(getActivity(),
                     R.layout.my_list_row_item, R.id.itemtext, data);
             mlistView.setAdapter(adapter);
 
@@ -151,6 +172,11 @@ public class Main_AuthedActivity extends ActionBarActivity
             super.onAttach(activity);
             ((Main_AuthedActivity) activity).onSectionAttached(
                     getArguments().getInt(ARG_SECTION_NUMBER));
+        }
+
+        // Adds data to the ListView
+        public void addtoList(String data){
+            adapter.add(data);
         }
     }
 

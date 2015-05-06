@@ -18,7 +18,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_scan">Scan</string>
-
+    <string name="action_logout">Logout</string>
 
     <color name="theme">#E3E2A0</color>
     <color name="themeDarker">#bcb95a</color>

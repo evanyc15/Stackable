@@ -5,13 +5,14 @@ import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -99,7 +99,7 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
         mDrawerListView.setAdapter(new ArrayAdapter<String>(
-                getActionBar().getThemedContext(),
+                getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
@@ -128,16 +128,19 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
 
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
+//        ActionBar actionBar = getActionBar();
+//        actionBar.setDisplayHomeAsUpEnabled(true);
+//        actionBar.setHomeButtonEnabled(true);
+
+        Toolbar mToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        ((ActionBarActivity)getActivity()).setSupportActionBar(mToolbar);
 
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the navigation drawer and the action bar app icon.
         mDrawerToggle = new ActionBarDrawerToggle(
                 getActivity(),                    /* host Activity */
                 mDrawerLayout,                    /* DrawerLayout object */
-                R.drawable.ic_drawer,             /* nav drawer image to replace 'Up' caret */
+                mToolbar,             /* nav drawer image to replace 'Up' caret */
                 R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
                 R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
         ) {
@@ -243,13 +246,17 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
+        if(mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_scan) {
+        if(item.getItemId() == R.id.action_scan) {
             Intent intent = new Intent(getActivity(), BarcodeScannerActivity.class);
             startActivityForResult(intent, 0);
+            return true;
+        }
+        else if(item.getItemId() == R.id.action_logout){
+            getActivity().finish();
             return true;
         }
 
@@ -257,10 +264,18 @@ public class NavigationDrawerFragment extends Fragment {
     }
     @Override
     // Method is called when the Barcode Intent has finished scanning a barcode and returns the data
+    // The data is returned from the BardoeScannerActivity's onActivityResult() method
+    // If there is data and no errors, this method will then call and pass data to the
+    // Main_AuthedActivity's updateListView() method.
     public void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode == 0 && resultCode == Activity.RESULT_OK){
+        if(requestCode == 0 && resultCode == Activity.RESULT_OK && data != null){
             String barcode = data.getStringExtra("data");
-//            Toast.makeText(getActivity(), "Scan Result = " + barcode, Toast.LENGTH_SHORT).show();
+            if(barcode != null && barcode != ""){
+                Activity parentActivity = getActivity();
+                if(parentActivity instanceof Main_AuthedActivity){
+                    ((Main_AuthedActivity) parentActivity).updateListView(barcode);
+                }
+            }
         }
     };
     /**
