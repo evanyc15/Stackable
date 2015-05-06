@@ -1,0 +1,16 @@
+<!-- Menu items for the Navigation Drawer -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="ech98.echen.stackable.Main_AuthedActivity">
+    <item
+        android:id="@+id/action_scan"
+        android:title="@string/action_scan"
+        android:icon="@drawable/ic_barcode"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+</menu>

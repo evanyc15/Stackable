@@ -1,0 +1,8 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="Theme.Default" parent="@android:style/Theme.Holo.Light"></style>
+    <style name="Theme.NoTitle" parent="@android:style/Theme.Holo.Light.NoActionBar"></style>
+    <style name="Theme.FullScreen" parent="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen"></style>
+    <style name="Theme.Main.Default" parent="@style/Theme.AppCompat.Light">
+        <item name="android:activatedBackgroundIndicator">@drawable/drawable_background</item>
+    </style>
+</resources>

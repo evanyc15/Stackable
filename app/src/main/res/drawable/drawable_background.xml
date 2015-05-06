@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This xml file is used to define the colors for the list items in the Navigation Drawer -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true" android:drawable="@color/theme" />
+    <item android:drawable="@android:color/white" />
+</selector>
