@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -129,7 +130,7 @@ public class Main_AuthedActivity extends ActionBarActivity
      */
     public static class PlaceholderFragment extends Fragment {
         private ListView mlistView;
-        private ArrayAdapter<String> adapter;
+        private MyListAdapter adapter;
 
         /**
          * The fragment argument representing the section number for this
@@ -160,8 +161,7 @@ public class Main_AuthedActivity extends ActionBarActivity
             View rootView = inflater.inflate(R.layout.fragment_main__authed, container, false);
             mlistView = (ListView) rootView.findViewById(R.id.listview);
 
-            adapter = new ArrayAdapter<String>(getActivity(),
-                    R.layout.my_list_row_item, R.id.itemtext, data);
+            adapter = new MyListAdapter(getActivity(), data);
             mlistView.setAdapter(adapter);
 
             return rootView;

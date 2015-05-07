@@ -1,16 +1,26 @@
 <!-- This is the layout for each row item in the listview (used in MyList right now) -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="15dp"
+    android:background="#ffffff">
 
     <TextView
         android:id="@+id/itemtext"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:textColor="#000000"
         android:text="Line item"
-        android:padding="5dp"
         android:textSize="16sp" />
-
+    <Button
+        android:id="@+id/delete_button"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/ic_close_lightgray"
+        android:scaleType="fitCenter"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentRight="true" />
 </RelativeLayout>
