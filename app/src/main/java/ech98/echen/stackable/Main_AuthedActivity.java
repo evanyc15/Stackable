@@ -156,12 +156,19 @@ public class Main_AuthedActivity extends ActionBarActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            ArrayList<String> data = new ArrayList<String>();
+
+            if (savedInstanceState != null) {
+                ArrayList<String> data = savedInstanceState.getStringArrayList("list");
+                if (data != null) {
+                    adapter = new MyListAdapter(getActivity(), data);
+                }
+            } else {
+                ArrayList<String> data = new ArrayList<String>();
+                adapter = new MyListAdapter(getActivity(), data);
+            }
 
             View rootView = inflater.inflate(R.layout.fragment_main__authed, container, false);
             mlistView = (ListView) rootView.findViewById(R.id.listview);
-
-            adapter = new MyListAdapter(getActivity(), data);
             mlistView.setAdapter(adapter);
 
             return rootView;
@@ -172,6 +179,18 @@ public class Main_AuthedActivity extends ActionBarActivity
             super.onAttach(activity);
             ((Main_AuthedActivity) activity).onSectionAttached(
                     getArguments().getInt(ARG_SECTION_NUMBER));
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle savedState) {
+            // Note: getValues() is a method in your MyListAdapter subclass
+            ArrayList<String> values =  new ArrayList<String>(adapter.getValues());
+            if(values.size() > 0){
+                savedState.putStringArrayList("list", values);
+            }
+
+            super.onSaveInstanceState(savedState);
+
         }
 
         // Adds data to the ListView

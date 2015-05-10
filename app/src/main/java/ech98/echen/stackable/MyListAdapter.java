@@ -131,4 +131,7 @@ public class MyListAdapter extends ArrayAdapter<String> {
         anim.setDuration(ANIMATION_DURATION);
         v.startAnimation(anim);
     }
+    public ArrayList<String> getValues(){
+        return this.data;
+    }
 }
