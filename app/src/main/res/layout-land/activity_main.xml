@@ -37,7 +37,7 @@
             android:textColorHint="#999999"
             android:padding="10sp"
             android:layout_marginTop="@dimen/homeField_vertical_margin"
-            android:layout_weight="10" />
+            android:layout_weight="20" />
         <EditText
             android:id="@+id/passwordInput"
             android:layout_width="fill_parent"
@@ -50,7 +50,7 @@
             android:textColorHint="#999999"
             android:padding="10sp"
             android:layout_marginTop="@dimen/homeField_vertical_margin"
-            android:layout_weight="10" />
+            android:layout_weight="20" />
         <Button
             android:id="@+id/loginButton"
             android:layout_width="fill_parent"
@@ -63,7 +63,7 @@
             android:layout_marginTop="@dimen/homeField_vertical_margin"
             android:background="@color/themeDarker"
             android:onClick="login"
-            android:layout_weight="15" />
+            android:layout_weight="30" />
     </LinearLayout>
     <RelativeLayout
         android:layout_width="fill_parent"
