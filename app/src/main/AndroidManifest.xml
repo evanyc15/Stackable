@@ -19,7 +19,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FullScreen" >
+            android:theme="@style/Theme.FullScreen"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,18 +30,13 @@
         <activity
             android:name=".Main_AuthedActivity"
             android:label="@string/title_activity_main__authed"
-            android:theme="@style/Theme.Main.Default">
+            android:theme="@style/Theme.Main.Default"
+            android:configChanges="orientation|screenSize">
         </activity>
         <activity
             android:name=".BarcodeScannerActivity"
             android:label="@string/title_activity_barcode_scanner"
             android:theme="@style/Theme.Barcode">
-        </activity>
-        <activity
-            android:name=".ZBarScannerActivity"
-            android:label="@string/title_activity_zbarscanner"
-            android:theme="@style/Theme.Default"
-            android:screenOrientation="portrait">
         </activity>
     </application>
 
