@@ -29,8 +29,7 @@
         <activity
             android:name=".Main_AuthedActivity"
             android:label="@string/title_activity_main__authed"
-            android:theme="@style/Theme.Main.Default"
-            android:configChanges="orientation" >
+            android:theme="@style/Theme.Main.Default">
         </activity>
         <activity
             android:name=".BarcodeScannerActivity"

@@ -27,4 +27,7 @@
     <string name="title_activity_zbarscanner">ZBar Scanner Activity</string>
     <string name="title_activity_barcode_scanner">BarcodeScannerActivity</string>
 
+    <integer name="viewfinder_border_width">4</integer>
+    <integer name="viewfinder_border_length">60</integer>
+
 </resources>

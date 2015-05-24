@@ -1,139 +1,203 @@
 package ech98.echen.stackable;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Point;
 import android.hardware.Camera;
-import android.hardware.Camera.AutoFocusCallback;
-import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.Size;
+import android.os.Handler;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import java.io.IOException;
 import java.util.List;
 
-class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
-    private final String TAG = "CameraPreview";
+public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
+    private static final String TAG = "CameraPreview";
 
-    SurfaceView mSurfaceView;
-    SurfaceHolder mHolder;
-    Size mPreviewSize;
-    List<Size> mSupportedPreviewSizes;
-    Camera mCamera;
-    PreviewCallback mPreviewCallback;
-    AutoFocusCallback mAutoFocusCallback;
+    private Camera mCamera;
+    private Handler mAutoFocusHandler;
+    private boolean mPreviewing = true;
+    private boolean mAutoFocus = true;
+    private boolean mSurfaceCreated = false;
+    private Camera.PreviewCallback mPreviewCallback;
 
-    CameraPreview(Context context, PreviewCallback previewCallback, AutoFocusCallback autoFocusCb) {
+    public CameraPreview(Context context) {
         super(context);
-
-        mPreviewCallback = previewCallback;
-        mAutoFocusCallback = autoFocusCb;
-        mSurfaceView = new SurfaceView(context);
-        addView(mSurfaceView);
-
-        // Install a SurfaceHolder.Callback so we get notified when the
-        // underlying surface is created and destroyed.
-        mHolder = mSurfaceView.getHolder();
-        mHolder.addCallback(this);
-        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
-    public void setCamera(Camera camera) {
+    public CameraPreview(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public void setCamera(Camera camera, Camera.PreviewCallback previewCallback) {
         mCamera = camera;
-        if (mCamera != null) {
-            mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
-            requestLayout();
-        }
+        mPreviewCallback = previewCallback;
+        mAutoFocusHandler = new Handler();
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // We purposely disregard child measurements because act as a
-        // wrapper to a SurfaceView that centers the camera preview instead
-        // of stretching it.
-        final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        setMeasuredDimension(width, height);
-
-        if (mSupportedPreviewSizes != null) {
-            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
-        }
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (changed && getChildCount() > 0) {
-            final View child = getChildAt(0);
-
-            final int width = r - l;
-            final int height = b - t;
-
-            int previewWidth = width;
-            int previewHeight = height;
-            if (mPreviewSize != null) {
-                previewWidth = mPreviewSize.width;
-                previewHeight = mPreviewSize.height;
-            }
-
-            // Center the child SurfaceView within the parent.
-            if (width * previewHeight > height * previewWidth) {
-                final int scaledChildWidth = previewWidth * height / previewHeight;
-                child.layout((width - scaledChildWidth) / 2, 0,
-                        (width + scaledChildWidth) / 2, height);
+    public void initCameraPreview() {
+        if(mCamera != null) {
+            getHolder().addCallback(this);
+            getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+            if(mPreviewing) {
+                requestLayout();
             } else {
-                final int scaledChildHeight = previewHeight * width / previewWidth;
-                child.layout(0, (height - scaledChildHeight) / 2,
-                        width, (height + scaledChildHeight) / 2);
+                showCameraPreview();
             }
         }
     }
 
-    public void hideSurfaceView() {
-        mSurfaceView.setVisibility(View.INVISIBLE);
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        mSurfaceCreated = true;
     }
 
-    public void showSurfaceView() {
-        mSurfaceView.setVisibility(View.VISIBLE);
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
+        if(surfaceHolder.getSurface() == null) {
+            return;
+        }
+        stopCameraPreview();
+        showCameraPreview();
     }
 
-    public void surfaceCreated(SurfaceHolder holder) {
-        // The Surface has been created, acquire the camera and tell it where
-        // to draw.
-        try {
-            if (mCamera != null) {
-                mCamera.setPreviewDisplay(holder);
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        mSurfaceCreated = false;
+        stopCameraPreview();
+    }
+
+    public void showCameraPreview() {
+        if(mCamera != null) {
+            try {
+                mPreviewing = true;
+                setupCameraParameters();
+                mCamera.setPreviewDisplay(getHolder());
+                mCamera.setDisplayOrientation(getDisplayOrientation());
+                mCamera.setOneShotPreviewCallback(mPreviewCallback);
+                mCamera.startPreview();
+                if(mAutoFocus) {
+                    if (mSurfaceCreated) { // check if surface created before using autofocus
+                        mCamera.autoFocus(autoFocusCB);
+                    } else {
+                        scheduleAutoFocus(); // wait 1 sec and then do check again
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.toString(), e);
             }
-        } catch (IOException exception) {
-            Log.e(TAG, "IOException caused by setPreviewDisplay()", exception);
         }
     }
 
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        // Surface will be destroyed when we return, so stop the preview.
-        if (mCamera != null) {
-            mCamera.cancelAutoFocus();
-            mCamera.stopPreview();
+    public void stopCameraPreview() {
+        if(mCamera != null) {
+            try {
+                mPreviewing = false;
+                mCamera.cancelAutoFocus();
+                mCamera.setOneShotPreviewCallback(null);
+                mCamera.stopPreview();
+            } catch(Exception e) {
+                Log.e(TAG, e.toString(), e);
+            }
         }
     }
 
+    public void setupCameraParameters() {
+        Camera.Size optimalSize = getOptimalPreviewSize();
+        Camera.Parameters parameters = mCamera.getParameters();
+        parameters.setPreviewSize(optimalSize.width, optimalSize.height);
+        mCamera.setParameters(parameters);
+        adjustViewSize(optimalSize);
+    }
 
-    private Size getOptimalPreviewSize(List<Size> sizes, int w, int h) {
+    private void adjustViewSize(Camera.Size cameraSize) {
+        Point previewSize = convertSizeToLandscapeOrientation(new Point(getWidth(), getHeight()));
+        float cameraRatio = ((float) cameraSize.width) / cameraSize.height;
+        float screenRatio = ((float) previewSize.x) / previewSize.y;
+
+        if (screenRatio > cameraRatio) {
+            setViewSize((int) (previewSize.y * cameraRatio), previewSize.y);
+        } else {
+            setViewSize(previewSize.x, (int) (previewSize.x / cameraRatio));
+        }
+    }
+
+    private Point convertSizeToLandscapeOrientation(Point size) {
+        if (getDisplayOrientation() % 180 == 0) {
+            return size;
+        } else {
+            return new Point(size.y, size.x);
+        }
+    }
+
+    private void setViewSize(int width, int height) {
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        if (getDisplayOrientation() % 180 == 0) {
+            layoutParams.width = width;
+            layoutParams.height = height;
+        } else {
+            layoutParams.width = height;
+            layoutParams.height = width;
+        }
+        setLayoutParams(layoutParams);
+    }
+
+    public int getDisplayOrientation() {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, info);
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+        int rotation = display.getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0: degrees = 0; break;
+            case Surface.ROTATION_90: degrees = 90; break;
+            case Surface.ROTATION_180: degrees = 180; break;
+            case Surface.ROTATION_270: degrees = 270; break;
+        }
+
+        int result;
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360;
+            result = (360 - result) % 360;  // compensate the mirror
+        } else {  // back-facing
+            result = (info.orientation - degrees + 360) % 360;
+        }
+        return result;
+    }
+
+    private Camera.Size getOptimalPreviewSize() {
+        if(mCamera == null) {
+            return null;
+        }
+
+        List<Camera.Size> sizes = mCamera.getParameters().getSupportedPreviewSizes();
+        Point screenResolution = DisplayUtils.getScreenResolution(getContext());
+        int w = screenResolution.x;
+        int h = screenResolution.y;
+        if (DisplayUtils.getScreenOrientation(getContext()) == Configuration.ORIENTATION_PORTRAIT) {
+            w = screenResolution.y;
+            h = screenResolution.x;
+        }
+
+
         final double ASPECT_TOLERANCE = 0.1;
         double targetRatio = (double) w / h;
         if (sizes == null) return null;
 
-        Size optimalSize = null;
+        Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
 
         int targetHeight = h;
 
         // Try to find an size match aspect ratio and size
-        for (Size size : sizes) {
+        for (Camera.Size size : sizes) {
             double ratio = (double) size.width / size.height;
             if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
             if (Math.abs(size.height - targetHeight) < minDiff) {
@@ -145,7 +209,7 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
         // Cannot find the one match the aspect ratio, ignore the requirement
         if (optimalSize == null) {
             minDiff = Double.MAX_VALUE;
-            for (Size size : sizes) {
+            for (Camera.Size size : sizes) {
                 if (Math.abs(size.height - targetHeight) < minDiff) {
                     optimalSize = size;
                     minDiff = Math.abs(size.height - targetHeight);
@@ -155,46 +219,42 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
         return optimalSize;
     }
 
-    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-        if (holder.getSurface() == null){
-            // preview surface does not exist
-            return;
-        }
-
-        if (mCamera != null) {
-            // Now that the size is known, set up the camera parameters and begin
-            // the preview.
-            Camera.Parameters parameters = mCamera.getParameters();
-            Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-
-            if(display.getRotation() == Surface.ROTATION_0)
-            {
-                parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-                mCamera.setDisplayOrientation(90);
+    public void setAutoFocus(boolean state) {
+        if(mCamera != null && mPreviewing) {
+            if(state == mAutoFocus) {
+                return;
             }
-
-            if(display.getRotation() == Surface.ROTATION_90)
-            {
-                parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            mAutoFocus = state;
+            if(mAutoFocus) {
+                if (mSurfaceCreated) { // check if surface created before using autofocus
+                    Log.v(TAG, "Starting autofocus");
+                    mCamera.autoFocus(autoFocusCB);
+                } else {
+                    scheduleAutoFocus(); // wait 1 sec and then do check again
+                }
+            } else {
+                Log.v(TAG, "Cancelling autofocus");
+                mCamera.cancelAutoFocus();
             }
-
-            if(display.getRotation() == Surface.ROTATION_180)
-            {
-                parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-            }
-
-            if(display.getRotation() == Surface.ROTATION_270)
-            {
-                parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-                mCamera.setDisplayOrientation(180);
-            }
-            requestLayout();
-
-            mCamera.setParameters(parameters);
-            mCamera.setPreviewCallback(mPreviewCallback);
-            mCamera.startPreview();
-            mCamera.autoFocus(mAutoFocusCallback);
         }
     }
 
+    private Runnable doAutoFocus = new Runnable() {
+        public void run() {
+            if(mCamera != null && mPreviewing && mAutoFocus && mSurfaceCreated) {
+                mCamera.autoFocus(autoFocusCB);
+            }
+        }
+    };
+
+    // Mimic continuous auto-focusing
+    Camera.AutoFocusCallback autoFocusCB = new Camera.AutoFocusCallback() {
+        public void onAutoFocus(boolean success, Camera camera) {
+            scheduleAutoFocus();
+        }
+    };
+
+    private void scheduleAutoFocus() {
+        mAutoFocusHandler.postDelayed(doAutoFocus, 1000);
+    }
 }
