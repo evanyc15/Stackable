@@ -6,14 +6,34 @@
     android:background="#ffffff">
 
     <TextView
-        android:id="@+id/itemtext"
+        android:id="@+id/item_upc"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:layout_marginBottom="5dp"
         android:textColor="#000000"
-        android:text="Line item"
-        android:textSize="16sp" />
+        android:text="UPC"
+        android:textSize="10sp" />
+    <TextView
+        android:id="@+id/item_brand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/item_upc"
+        android:layout_marginRight="10dp"
+        android:text="Brand"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+    <TextView
+        android:id="@+id/item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/item_upc"
+        android:layout_toRightOf="@id/item_brand"
+        android:text="Name"
+        android:textColor="#000000"
+        android:textSize="12sp"/>
     <Button
         android:id="@+id/delete_button"
         android:layout_width="20dp"

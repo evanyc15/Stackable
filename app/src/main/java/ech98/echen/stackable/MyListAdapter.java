@@ -16,18 +16,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 /**
  * Created by echen on 5/6/15. This is the adapter that controls the content of the
  * fragment_main_authed ListView
  */
-public class MyListAdapter extends ArrayAdapter<String> {
+public class MyListAdapter extends ArrayAdapter<FoodEssential_Object> {
     private final Context context;
-    private final ArrayList<String> data;
+    private final ArrayList<FoodEssential_Object> data;
     static final int ANIMATION_DURATION = 200;
 
-    public MyListAdapter(Context context, ArrayList<String> data) {
+    public MyListAdapter(Context context, ArrayList<FoodEssential_Object> data) {
         super(context, R.layout.my_list_row_item, data);
         this.context = context;
         this.data = data;
@@ -38,8 +40,13 @@ public class MyListAdapter extends ArrayAdapter<String> {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.my_list_row_item, parent, false);
-        TextView textView = (TextView) rowView.findViewById(R.id.itemtext);
-        textView.setText(data.get(position));
+        TextView upcView = (TextView) rowView.findViewById(R.id.item_upc);
+        TextView brandView = (TextView) rowView.findViewById(R.id.item_brand);
+        TextView nameView = (TextView) rowView.findViewById(R.id.item_name);
+
+        upcView.setText(data.get(position).getUpc());
+        brandView.setText(data.get(position).getBrand());
+        nameView.setText(data.get(position).getName());
 
         final View passrowView = rowView;
         final int passPosition = position;
@@ -131,7 +138,7 @@ public class MyListAdapter extends ArrayAdapter<String> {
         anim.setDuration(ANIMATION_DURATION);
         v.startAnimation(anim);
     }
-    public ArrayList<String> getValues(){
+    public ArrayList<FoodEssential_Object> getValues(){
         return this.data;
     }
 }

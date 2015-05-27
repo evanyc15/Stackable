@@ -1,35 +1,29 @@
 package ech98.echen.stackable;
 
 import android.app.Activity;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.support.v7.widget.Toolbar;
+import android.provider.Settings.Secure;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 
 public class Main_AuthedActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, OnSessionTaskCompleted {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -40,12 +34,17 @@ public class Main_AuthedActivity extends ActionBarActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    protected static String android_id;
+    protected static JSONObject food_ess = null;
+    protected static String api_key = "kx8p9ftgqzw7nygqfndh6ctt";
+    protected static String food_Url = "http://api.foodessentials.com/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main__authed);
+        android_id = Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
 
+        setContentView(R.layout.activity_main__authed);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -54,6 +53,9 @@ public class Main_AuthedActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+//        Establish session with Food Essential website
+        new FoodEss_SessionTask(this).execute(food_Url, android_id, api_key);
     }
 
     @Override
@@ -124,11 +126,14 @@ public class Main_AuthedActivity extends ActionBarActivity
             Toast.makeText(Main_AuthedActivity.this, "Cannot load content", Toast.LENGTH_SHORT).show();
         }
     }
+    public void onSessionTaskCompleted(JSONObject data){
+        food_ess = data;
+    }
 
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment implements OnFoodTaskCompleted{
         private ListView mlistView;
         private MyListAdapter adapter;
 
@@ -156,19 +161,10 @@ public class Main_AuthedActivity extends ActionBarActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-
-            if (savedInstanceState != null) {
-                ArrayList<String> data = savedInstanceState.getStringArrayList("list");
-                if (data != null) {
-                    adapter = new MyListAdapter(getActivity(), data);
-                }
-            } else {
-                ArrayList<String> data = new ArrayList<String>();
-                adapter = new MyListAdapter(getActivity(), data);
-            }
-
+            adapter = new MyListAdapter(getActivity(), new ArrayList<FoodEssential_Object>());
             View rootView = inflater.inflate(R.layout.fragment_main__authed, container, false);
             mlistView = (ListView) rootView.findViewById(R.id.listview);
+
             mlistView.setAdapter(adapter);
 
             return rootView;
@@ -181,21 +177,21 @@ public class Main_AuthedActivity extends ActionBarActivity
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
 
-        @Override
-        public void onSaveInstanceState(Bundle savedState) {
-            // Note: getValues() is a method in your MyListAdapter subclass
-            ArrayList<String> values =  new ArrayList<String>(adapter.getValues());
-            if(values.size() > 0){
-                savedState.putStringArrayList("list", values);
-            }
-
-            super.onSaveInstanceState(savedState);
-
-        }
-
         // Adds data to the ListView
         public void addtoList(String data){
-            adapter.add(data);
+            try{
+                new FoodEss_GetFoodTask(this).execute(food_Url, data, food_ess.getString("session_id"), api_key);
+            } catch(JSONException e){
+
+            }
+        }
+        public void onFoodTaskCompleted(JSONObject data){
+            try{
+                JSONObject productData = data.getJSONObject("product");
+                adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("product_name"), productData.getString("brand")));
+            } catch(JSONException e){
+                System.out.println("===Error: "+e);
+            }
         }
     }
 
