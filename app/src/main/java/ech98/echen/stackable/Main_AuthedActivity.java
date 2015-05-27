@@ -1,6 +1,7 @@
 package ech98.echen.stackable;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -39,10 +40,12 @@ public class Main_AuthedActivity extends ActionBarActivity
     protected static String client_id = "192d6a3e";
     protected static String client_secret = "9ee32fe1457fffea5bdf7f0ee39c2cba";
     protected static String food_Url = "https://api.iamdata.co:443/v1/products?";
+    private static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Main_AuthedActivity.context = getApplicationContext();
         android_id = Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
 
         setContentView(R.layout.activity_main__authed);
@@ -124,6 +127,9 @@ public class Main_AuthedActivity extends ActionBarActivity
             Toast.makeText(Main_AuthedActivity.this, "Cannot load content", Toast.LENGTH_SHORT).show();
         }
     }
+    public static Context getAppContext(){
+        return Main_AuthedActivity.context;
+    }
 
     /**
      * A placeholder fragment containing a simple view.
@@ -178,22 +184,27 @@ public class Main_AuthedActivity extends ActionBarActivity
         }
         public void onFoodTaskCompleted(JSONObject data){
             Object array;
-            try{
-                array = data.getJSONArray("result").get(0);
-                JSONObject productData = new JSONObject(array.toString());
+            if(data != null){
+                try{
+                    array = data.getJSONArray("result").get(0);
+                    JSONObject productData = new JSONObject(array.toString());
 
-                if((productData.getString("description") == null || productData.getString("description").isEmpty()) && productData.getString("brand") != "null" && !productData.getString("brand").isEmpty()){
-                    adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("name"), productData.getString("brand"), productData.getString("large_image")));
-                } else if(productData.getString("description") != null && !productData.getString("description").isEmpty() && (productData.getString("brand") == null || productData.getString("brand").isEmpty())){
-                    adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("description"), productData.getString("manufacturer"), productData.getString("large_image")));
-                } else if(productData.getString("description") != null && !productData.getString("description").isEmpty() && productData.getString("brand") != null && !productData.getString("brand").isEmpty()){
-                    adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("description"), productData.getString("brand"), productData.getString("large_image")));
-                } else {
-                    adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("name"), productData.getString("manufacturer"), productData.getString("large_image")));
+                    if((productData.getString("description") == null || productData.getString("description").isEmpty()) && productData.getString("brand") != "null" && !productData.getString("brand").isEmpty()){
+                        adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("name"), productData.getString("brand"), productData.getString("large_image")));
+                    } else if(productData.getString("description") != null && !productData.getString("description").isEmpty() && (productData.getString("brand") == null || productData.getString("brand").isEmpty())){
+                        adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("description"), productData.getString("manufacturer"), productData.getString("large_image")));
+                    } else if(productData.getString("description") != null && !productData.getString("description").isEmpty() && productData.getString("brand") != null && !productData.getString("brand").isEmpty()){
+                        adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("description"), productData.getString("brand"), productData.getString("large_image")));
+                    } else {
+                        adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("name"), productData.getString("manufacturer"), productData.getString("large_image")));
+                    }
+                } catch(JSONException e){
+                    System.out.println("===Error: "+e);
                 }
-            } catch(JSONException e){
-                System.out.println("===Error: "+e);
+            } else {
+                Toast.makeText(Main_AuthedActivity.getAppContext(), "Could not load Product data", Toast.LENGTH_SHORT).show();
             }
+
         }
     }
 
