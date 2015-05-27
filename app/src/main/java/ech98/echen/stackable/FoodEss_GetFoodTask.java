@@ -23,8 +23,8 @@ public class FoodEss_GetFoodTask extends AsyncTask<String, Void, JSONObject>{
     protected void onPreExecute(){
     }
     protected JSONObject doInBackground(String... params) {
-//        params[0] = url, params[1] = upc, params[2] = session id, params[3] = api_key
-        params[0] += "productscore?u="+params[1]+"&sid="+params[2]+"&f=json&api_key="+params[3];
+//        params[0] = url, params[1] = upc, params[2] = client_id, params[3] = client_secret
+        params[0] += "name="+params[1]+"&id="+params[1]+"&full_resp=true&client_id="+params[2]+"&client_secret="+params[3];
 
         String line = "";
         String result = "";

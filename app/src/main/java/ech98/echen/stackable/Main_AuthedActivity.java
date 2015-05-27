@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 
 public class Main_AuthedActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks, OnSessionTaskCompleted {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -35,9 +35,9 @@ public class Main_AuthedActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
     protected static String android_id;
-    protected static JSONObject food_ess = null;
-    protected static String api_key = "kx8p9ftgqzw7nygqfndh6ctt";
-    protected static String food_Url = "http://api.foodessentials.com/";
+    protected static String client_id = "192d6a3e";
+    protected static String client_secret = "9ee32fe1457fffea5bdf7f0ee39c2cba";
+    protected static String food_Url = "https://api.iamdata.co:443/v1/products?";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +53,6 @@ public class Main_AuthedActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-
-//        Establish session with Food Essential website
-        new FoodEss_SessionTask(this).execute(food_Url, android_id, api_key);
     }
 
     @Override
@@ -126,9 +123,6 @@ public class Main_AuthedActivity extends ActionBarActivity
             Toast.makeText(Main_AuthedActivity.this, "Cannot load content", Toast.LENGTH_SHORT).show();
         }
     }
-    public void onSessionTaskCompleted(JSONObject data){
-        food_ess = data;
-    }
 
     /**
      * A placeholder fragment containing a simple view.
@@ -179,13 +173,10 @@ public class Main_AuthedActivity extends ActionBarActivity
 
         // Adds data to the ListView
         public void addtoList(String data){
-            try{
-                new FoodEss_GetFoodTask(this).execute(food_Url, data, food_ess.getString("session_id"), api_key);
-            } catch(JSONException e){
-
-            }
+            new FoodEss_GetFoodTask(this).execute(food_Url, data, client_id, client_secret);
         }
         public void onFoodTaskCompleted(JSONObject data){
+            System.out.println("====DATA: "+data.toString());
             try{
                 JSONObject productData = data.getJSONObject("product");
                 adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("product_name"), productData.getString("brand")));
