@@ -24,21 +24,24 @@ public class FoodEss_GetFoodTask extends AsyncTask<String, Void, JSONObject>{
     }
     protected JSONObject doInBackground(String... params) {
 //        params[0] = url, params[1] = upc, params[2] = client_id, params[3] = client_secret
-        params[0] += "name="+params[1]+"&id="+params[1]+"&full_resp=true&client_id="+params[2]+"&client_secret="+params[3];
+        params[0] += "name="+params[1]+"&id="+params[1]+"&full_resp=false&client_id="+params[2]+"&client_secret="+params[3];
 
         String line = "";
         String result = "";
+        JSONObject resultJson = null;
 
         try {
-            URL url = new URL(params[0]);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            while((line = in.readLine()) != null){
-                result += line;
+            while(resultJson == null){
+                URL url = new URL(params[0]);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                while((line = in.readLine()) != null){
+                    result += line;
+                }
+                in.close();
+                resultJson = new JSONObject(result);
             }
-            in.close();
-
-            return new JSONObject(result);
+            return resultJson;
         } catch (Exception e){
 
         }

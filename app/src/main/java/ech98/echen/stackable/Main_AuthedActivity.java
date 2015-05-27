@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.provider.Settings.Secure;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -176,10 +177,20 @@ public class Main_AuthedActivity extends ActionBarActivity
             new FoodEss_GetFoodTask(this).execute(food_Url, data, client_id, client_secret);
         }
         public void onFoodTaskCompleted(JSONObject data){
-            System.out.println("====DATA: "+data.toString());
+            Object array;
             try{
-                JSONObject productData = data.getJSONObject("product");
-                adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("product_name"), productData.getString("brand")));
+                array = data.getJSONArray("result").get(0);
+                JSONObject productData = new JSONObject(array.toString());
+
+                if((productData.getString("description") == null || productData.getString("description").isEmpty()) && productData.getString("brand") != "null" && !productData.getString("brand").isEmpty()){
+                    adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("name"), productData.getString("brand"), productData.getString("large_image")));
+                } else if(productData.getString("description") != null && !productData.getString("description").isEmpty() && (productData.getString("brand") == null || productData.getString("brand").isEmpty())){
+                    adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("description"), productData.getString("manufacturer"), productData.getString("large_image")));
+                } else if(productData.getString("description") != null && !productData.getString("description").isEmpty() && productData.getString("brand") != null && !productData.getString("brand").isEmpty()){
+                    adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("description"), productData.getString("brand"), productData.getString("large_image")));
+                } else {
+                    adapter.add(new FoodEssential_Object(productData.getString("upc"), productData.getString("name"), productData.getString("manufacturer"), productData.getString("large_image")));
+                }
             } catch(JSONException e){
                 System.out.println("===Error: "+e);
             }

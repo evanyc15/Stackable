@@ -1,7 +1,11 @@
 package ech98.echen.stackable;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.TouchDelegate;
@@ -18,6 +22,8 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -40,10 +46,31 @@ public class MyListAdapter extends ArrayAdapter<FoodEssential_Object> {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.my_list_row_item, parent, false);
+        final ImageView imgView = (ImageView) rowView.findViewById(R.id.item_image);
         TextView upcView = (TextView) rowView.findViewById(R.id.item_upc);
         TextView brandView = (TextView) rowView.findViewById(R.id.item_brand);
         TextView nameView = (TextView) rowView.findViewById(R.id.item_name);
 
+        new AsyncTask<Integer, Void, Void>() {
+            private Bitmap bmp;
+            @Override
+            protected Void doInBackground(Integer... params) {
+                try {
+                    InputStream in = new URL(data.get(params[0]).getImage()).openStream();
+                    bmp = BitmapFactory.decodeStream(in);
+                } catch (Exception e) {
+                    // log error
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                if (bmp != null)
+                    imgView.setImageBitmap(bmp);
+            }
+
+        }.execute(position);
         upcView.setText(data.get(position).getUpc());
         brandView.setText(data.get(position).getBrand());
         nameView.setText(data.get(position).getName());
@@ -91,10 +118,10 @@ public class MyListAdapter extends ArrayAdapter<FoodEssential_Object> {
                 button.getHitRect(delegateArea);
 
                 // Extend the touch area of the Button beyond its bounds
-                delegateArea.right +=100;
-                delegateArea.left +=100;
-                delegateArea.top +=100;
-                delegateArea.bottom +=100;
+                delegateArea.right += 100;
+                delegateArea.left += 100;
+                delegateArea.top += 100;
+                delegateArea.bottom += 100;
 
                 // Instantiate a TouchDelegate.
                 // "delegateArea" is the bounds in local coordinates of
